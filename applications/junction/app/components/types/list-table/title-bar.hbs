@@ -58,9 +58,8 @@
       ><i class="fa-solid fa-list-check"></i> Public Form</button>
 
       <button
+        {{on "click" this.papaUnparse}}
         type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#csvImportExportModal"
         class="btn rounded-pill m-1 btn-outline-{{this.colormodes.inverseMode}}"
       ><i class="fa-solid fa-file-csv"></i> Data Exchange</button>
     {{/if}}

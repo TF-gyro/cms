@@ -1,5 +1,5 @@
 /.vscode
-/.env
+.env
 /uploads/*
 !/uploads/.gitkeep
 /node_modules

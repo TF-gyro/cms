@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
+import { later } from '@ember/runloop';
 import { A } from '@ember/array';
 import ENV from 'junction/config/environment';
 import EditorJS from '@editorjs/editorjs';
@@ -28,7 +29,6 @@ export default class TypesEditObjectModalComponent extends Component {
   @service type;
   @service colormodes;
   @service object;
-  @service editorjs;
 
   indexOf = (arr, slug) => {
     let publicModules = JSON.parse(arr);
@@ -43,7 +43,7 @@ export default class TypesEditObjectModalComponent extends Component {
   @tracked objectID = this.object.currentObject
     ? this.object.currentObject.modules.id
     : 'new';
-  @tracked editorjsInstances = {};
+  @tracked editorjsInstances = [];
   @tracked doUpdateSlug = false;
 
   onload = modifier((el) => {
@@ -121,49 +121,51 @@ export default class TypesEditObjectModalComponent extends Component {
     this.type.currentType.modules.forEach((module) => {
       const promise = new Promise((resolve, reject) => {
         if (
-          module.input_type !== 'editorjs' &&
-          ((module.input_type !== 'text' &&
-            module.input_type !== 'textarea' &&
-            module.input_type !== 'color' &&
-            module.input_type !== 'date' &&
-            module.input_type !== 'datetime-local' &&
-            module.input_type !== 'email' &&
-            module.input_type !== 'url') ||
-            module.input_multiple !== true)
+          module.input_type == 'editorjs' ||
+          ((module.input_type == 'text' ||
+            module.input_type == 'textarea' ||
+            module.input_type == 'color' ||
+            module.input_type == 'date' ||
+            module.input_type == 'datetime-local' ||
+            module.input_type == 'email' ||
+            module.input_type == 'url') &&
+            module.input_multiple === true)
         ) {
+          if (module.input_type == 'editorjs') {
+            this.saveEditorData(module.input_slug, this.objectID).then(
+              (outputData) => {
+                this.mutObjectModuleValue(module.input_slug, outputData, false);
+                resolve();
+                var ejsTarget = `${this.type.currentType.slug}-${module.input_slug}`;
+                if (
+                  this.editorjsInstances != [] &&
+                  this.editorjsInstances[ejsTarget] !== undefined
+                )
+                  this.editorjsInstances[ejsTarget].destroy();
+              },
+            );
+          } else {
+            const mtxtId = `${this.type.currentType.slug}-${module.input_slug}-${this.objectID}`;
+            const inputs = document.querySelectorAll(
+              "[name='" + mtxtId + "[]']",
+            );
+            let j = 0;
+            for (let i = 0; i < inputs.length; i++) {
+              if (inputs[i].value.trim() != '') {
+                this.mutObjectModuleValue(
+                  module.input_slug,
+                  inputs[i].value,
+                  true,
+                  j,
+                );
+                j++;
+              }
+            }
+            resolve();
+          }
+        } else {
           resolve();
           return;
-        }
-
-        if (module.input_type == 'editorjs') {
-          this.saveEditorData(module.input_slug, this.objectID).then(
-            (outputData) => {
-              this.mutObjectModuleValue(module.input_slug, outputData, false);
-              resolve();
-              var ejsTarget = `${this.type.currentType.slug}-${module.input_slug}`;
-              if (
-                this.editorjsInstances != [] &&
-                this.editorjsInstances[ejsTarget] !== undefined
-              )
-                this.editorjsInstances[ejsTarget].destroy();
-            },
-          );
-        } else {
-          const mtxtId = `${this.type.currentType.slug}-${module.input_slug}-${this.objectID}`;
-          const inputs = document.querySelectorAll("[name='" + mtxtId + "[]']");
-          let j = 0;
-          for (let i = 0; i < inputs.length; i++) {
-            if (inputs[i].value.trim() != '') {
-              this.mutObjectModuleValue(
-                module.input_slug,
-                inputs[i].value,
-                true,
-                j,
-              );
-              j++;
-            }
-          }
-          resolve();
         }
       });
 
@@ -344,18 +346,14 @@ export default class TypesEditObjectModalComponent extends Component {
   async initEditorJS(module_input_slug) {
     const ejsTarget = `${this.type.currentType.slug}-${module_input_slug}`;
 
-    let ejsInstance = this.editorjsInstances[ejsTarget];
-
     if (
-      this.objectID === 'new' &&
-      Object.keys(this.editorjsInstances).length !== 0 &&
-      ejsInstance !== undefined &&
-      Object.keys(ejsInstance).length !== 0
-    ) {
-      ejsInstance.destroy();
-    }
+      this.objectID == 'new' &&
+      this.editorjsInstances != [] &&
+      this.editorjsInstances[ejsTarget] !== undefined
+    )
+      this.editorjsInstances[ejsTarget].destroy();
 
-    let editor_object_in_type = Object(this.type.currentType.modules).find(
+    var editor_object_in_type = Object(this.type.currentType.modules).find(
       function (element) {
         if (element['input_slug'] == module_input_slug) return element;
       },
@@ -367,9 +365,7 @@ export default class TypesEditObjectModalComponent extends Component {
         ? editor_object_in_type.input_placeholder
         : 'Type here...';
 
-    console.log('ejsTargets: ', ejsTarget);
-
-    ejsInstance = new EditorJS({
+    var ejsInstance = new EditorJS({
       holder: ejsTarget,
       data: this.object.currentObject
         ? this.object.currentObject.modules[module_input_slug]
@@ -468,11 +464,9 @@ export default class TypesEditObjectModalComponent extends Component {
         const editorsCount = editors.length;
 
         this.editorjsInstances[ejsTarget] = ejsInstance;
-        console.log(this.editorjsInstances);
 
-        if (this.objectID == 'new') {
-          ejsInstance.blocks.clear();
-        }
+        if (this.objectID == 'new')
+          this.editorjsInstances[ejsTarget].blocks.clear();
       })
       .catch((e) => {
         console.error('Error during Editor.js initialization:', e);
@@ -480,17 +474,16 @@ export default class TypesEditObjectModalComponent extends Component {
   }
 
   @action
-  async saveEditorData(module_input_slug) {
-    const ejsTarget = `${this.type.currentType.slug}-${module_input_slug}`;
+  async saveEditorData(module_input_slug, id) {
+    var ejsId = `${this.type.currentType.slug}-${module_input_slug}`;
 
-    let ejsInstance = this.editorjs.instances[ejsTarget];
-    if (!ejsInstance) {
+    if (!this.editorjsInstances[ejsId]) {
       console.error('editorJs save failed, editorjs instance not found');
       return;
     }
 
-    const output = await ejsInstance.save().catch((error) => {
-      console.error('Saving failed: ', error);
+    const output = await this.editorjsInstances[ejsId].save().catch((error) => {
+      console.log('Saving failed: ', error);
     });
 
     return output;
@@ -538,7 +531,7 @@ export default class TypesEditObjectModalComponent extends Component {
   cleanVarsIfNew() {
     this.objectModules = A([]);
     this.objectModules = this.objectModules;
-    this.editorjsInstances = {};
+    this.editorjsInstances = [];
   }
 
   @action
