@@ -93,12 +93,14 @@ export default class AuthService extends Service {
 
   @action
   async justGoToRouteAfterLogin() {
+    this.inputPassword = null; // clear stored password for security reasons
+
     if (
       this.goToRouteAfterLogin == 'index' ||
       this.goToRouteAfterLogin == 'auth'
-    )
+    ) {
       this.router.transitionTo('index');
-    else {
+    } else {
       this.type.currentType = this.types.json.modules[this.goToSlugAfterLogin];
       this.router.transitionTo(
         this.goToRouteAfterLogin,
@@ -108,13 +110,21 @@ export default class AuthService extends Service {
   }
 
   @action
-  async logout() {
+  async logout(e) {
+    e.preventDefault();
+
     await this.cookies.eraseCookie('junctionexpress_user_email');
     await this.cookies.eraseCookie('junctionexpress_user_id');
     await this.cookies.eraseCookie(ENV.JUNCTION_SLUG);
-    window.location.href = 'https://junction.express';
+
+    if (ENV.JUNCTION_SLUG === 'junction') {
+      this.router.transitionTo('auth');
+    } else {
+      window.location.href = 'https://truearch.io';
+    }
   }
 
+  // TODO: clean up this function
   @action
   async getJunctionPassword() {
     if (ENV.JUNCTION_SLUG == undefined || ENV.JUNCTION_SLUG == '') {
@@ -125,44 +135,54 @@ export default class AuthService extends Service {
       this.cookies.getCookie('junctionexpress_user_id') !== undefined
     ) {
       let user_id = this.cookies.getCookie('junctionexpress_user_id');
-      await fetch('https://tribe.junction.express/custom/auth/access.php', {
-        method: 'post',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+      let response = await fetch(
+        'https://tribe.junction.express/custom/auth/access.php',
+        {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            slug: ENV.JUNCTION_SLUG,
+            user_id: user_id,
+          }),
         },
-        body: JSON.stringify({
-          slug: ENV.JUNCTION_SLUG,
-          user_id: user_id,
-        }),
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          }
-        })
-        .then(async (response) => {
-          if (response !== undefined && response.authenticated === true) {
-            this.cookies.setCookie(ENV.JUNCTION_SLUG, response.password);
-            if (
-              response.project_description !== undefined &&
-              response.project_description != ''
-            )
-              this.projectDescription = response.project_description;
-            if (
-              response.blueprint_link !== undefined &&
-              response.blueprint_link != ''
-            )
-              this.blueprintLink = response.blueprint_link;
-            if (
-              response.implementation_summary !== undefined &&
-              response.implementation_summary != ''
-            )
-              this.implementationSummary = response.implementation_summary;
-            this.type.loadingSearchResults = false;
-            this.justGoToRouteAfterLogin();
-          }
-        });
+      ).then((res) => {
+        if (!res.ok) return;
+
+        return res.json();
+      });
+
+      if (response === undefined || response.authenticated !== true) {
+        return null;
+      }
+
+      this.cookies.setCookie(ENV.JUNCTION_SLUG, response.password);
+
+      if (
+        response.project_description !== undefined &&
+        response.project_description != ''
+      ) {
+        this.projectDescription = response.project_description;
+      }
+
+      if (
+        response.blueprint_link !== undefined &&
+        response.blueprint_link != ''
+      ) {
+        this.blueprintLink = response.blueprint_link;
+      }
+
+      if (
+        response.implementation_summary !== undefined &&
+        response.implementation_summary != ''
+      ) {
+        this.implementationSummary = response.implementation_summary;
+      }
+
+      this.type.loadingSearchResults = false;
+      this.justGoToRouteAfterLogin();
     }
   }
 }
