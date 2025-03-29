@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# This script published the NPM package
 
 ##################
 ##################
@@ -60,10 +62,10 @@ get_latest_version() {
 
 # Main execution
 
-# Check if we're on master branch
+# Check if we're on main branch
 current_branch=$(git rev-parse --abbrev-ref HEAD)
-if [ "$current_branch" != "master" ]; then
-    echo "Error: Not on master branch"
+if [ "$current_branch" != "main" ]; then
+    echo "Error: Not on main branch"
     exit 1
 fi
 

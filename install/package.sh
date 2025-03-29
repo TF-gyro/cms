@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# This script packages changes from this repo into ember-junction blueprint
 
 # Define paths
 SOURCE_DIR="./applications/junction/app"

@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+# This script cleans-up the app directory and does a clean re-build
+
 FILE=.flame
 if test -f "$FILE"; then
     rm -r applications/junction;
