@@ -4,6 +4,7 @@ import { action } from '@ember/object';
 import { later } from '@ember/runloop';
 import { service } from '@ember/service';
 import ENV from 'junction/config/environment';
+import { Modal } from 'bootstrap';
 
 export default class BlueprintsService extends Service {
   @service colormodes;
@@ -18,6 +19,20 @@ export default class BlueprintsService extends Service {
   @action
   downloadCurrentBlueprint() {
     this.type.loadingSearchResults = true;
+
+    if (this.isValidURL(j)) {
+      j = await fetch(j);
+      j = await response.json(j);
+    } else if (
+      typeof j === 'object' &&
+      j.isTrusted === undefined &&
+      j !== null &&
+      !Array.isArray(j)
+    ) {
+      j = j;
+    } else {
+      j = this.types.json.modules;
+    }
 
     var types_json = [];
     Object.entries(this.types.json.modules).forEach((v, i) => {
@@ -76,10 +91,8 @@ export default class BlueprintsService extends Service {
       return response.json();
     });
 
-    var types_json = [];
-    Object.entries(this.types.json.modules).forEach((v, i) => {
-      let type_slug = v[0];
-      let type_obj = v[1];
+        let response = await fetch(link);
+        let data_json = await response.json();
 
       if (type_slug == 'webapp') {
         types_json['webapp'] = type_obj;
@@ -163,7 +176,18 @@ export default class BlueprintsService extends Service {
 
   @action
   async getBlueprints() {
+    this.myBlueprints = await this.store.query('blueprint_record', {
+      show_public_objects_only: false,
+    });
+    
     if (
+      Object.entries(this.types.json.modules).length <= 5 &&
+      this.myBlueprints[0] !== undefined &&
+      this.myBlueprints[0].id !== undefined
+    ) {
+      let bp = new Modal(document.getElementById('blueprintAIPromptModal'), {});
+      bp.show();
+    } else if (
       this.auth.projectDescription != '' &&
       Object.entries(this.types.json.modules).length <= 5
     ) {
@@ -177,11 +201,8 @@ export default class BlueprintsService extends Service {
         this.auth.implementationSummary,
       );
     } else {
-      let data = await fetch(
-        'https://tribe.junction.express/api.php/blueprint',
-      ).then(function (response) {
-        return response.json();
-      });
+      let response = await fetch('https://tribe.junction.express/api.php/blueprint');
+      let data = await response.json();
       this.junctionBlueprints = data.data;
       this.myBlueprints = await this.store.query('deleted_record', {
         modules: { deleted_type: 'blueprint_record' },
@@ -327,7 +348,7 @@ export default class BlueprintsService extends Service {
         }
       });
 
-      let data = await fetch(
+      let response = await fetch(
         'https://tribe.junction.express/custom/anthropic/get-sample-data.php',
         {
           method: 'POST',
@@ -342,9 +363,8 @@ export default class BlueprintsService extends Service {
             types_json: { ...Object.assign({}, types_json) },
           }),
         },
-      ).then(function (response) {
-        return response.json();
-      });
+      );
+      let data = await response.json();
 
       if (data !== undefined && data && data.objects) {
         Object.entries(data.objects).forEach(async (v, i) => {
