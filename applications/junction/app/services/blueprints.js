@@ -179,7 +179,7 @@ export default class BlueprintsService extends Service {
     this.myBlueprints = await this.store.query('blueprint_record', {
       show_public_objects_only: false,
     });
-    
+
     if (
       Object.entries(this.types.json.modules).length <= 5 &&
       this.myBlueprints[0] !== undefined &&
@@ -201,7 +201,9 @@ export default class BlueprintsService extends Service {
         this.auth.implementationSummary,
       );
     } else {
-      let response = await fetch('https://tribe.junction.express/api.php/blueprint');
+      let response = await fetch(
+        'https://tribe.junction.express/api.php/blueprint',
+      );
       let data = await response.json();
       this.junctionBlueprints = data.data;
       this.myBlueprints = await this.store.query('deleted_record', {
