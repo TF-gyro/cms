@@ -9,7 +9,6 @@ if test -f "$FILE"; then
     cd applications/junction;
     ember init;
     yes | ember install ember-tribe;
-    yes | ember install ember-junction;
     cd ../../;
     rm build.sh;
 else
