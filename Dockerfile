@@ -11,7 +11,6 @@ RUN apt-get update && \
 
 # install system packages
 RUN apt-get update && apt-get install -y software-properties-common apt-transport-https build-essential
-# RUN add-apt-repository ppa:ondrej/php
 RUN apt-get install -y vim \
     zip \
     unzip \
