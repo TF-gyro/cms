@@ -359,7 +359,7 @@ export default class BlueprintsService extends Service {
 
             types_json['webapp']['project_description'] =
               this.projectDescription;
-            types_json['webapp']['implementation_summary'] = data.html;
+            types_json['webapp']['implementation_summary'] = data.html ? data.html : "No summary";
 
             if (data_json) {
               this.types.json.modules = {
