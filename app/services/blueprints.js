@@ -310,7 +310,7 @@ export default class BlueprintsService extends Service {
       this.intervalId = setInterval(this.progressLoading, 5000);
 
       let response = await fetch(
-        'https://tribe.junction.express/custom/anthropic/get-response.php',
+        'https://agent-api.truearch.io/api/v1/generate-types',
         {
           method: 'POST',
           headers: {
@@ -323,15 +323,15 @@ export default class BlueprintsService extends Service {
       );
       let data = await response.json();
 
-      if (data !== undefined && data && data.json) {
+      if (data !== undefined && data && data.types) {
         if (
           (data.error !== undefined && data.error) ||
-          data.json === undefined
+          data.types === undefined
         ) {
           this.loadingProgress = 0;
           this.tryAgain = true;
         } else {
-          let data_json = data.json;
+          let data_json = data.types;
 
           if (data_json === undefined) {
             this.loadingProgress = 0;
