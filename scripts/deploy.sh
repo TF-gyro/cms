@@ -7,6 +7,7 @@ cd applications/junction
 rm .env
 
 # build for production
+npm i
 npm run build
 
 # run php script to sync dist
