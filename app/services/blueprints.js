@@ -412,7 +412,7 @@ export default class BlueprintsService extends Service {
       });
 
       let response = await fetch(
-        'https://tribe.junction.express/custom/anthropic/get-sample-data.php',
+        'https://agent-api.truearch.io/api/v1/generate-sample-data',
         {
           method: 'POST',
           headers: {
