@@ -16354,7 +16354,7 @@ catch(err) {
 
 ;
           if (!runningTests) {
-            require("junction/app")["default"].create({"name":"junction","version":"2.0.1+749c58ba"});
+            require("junction/app")["default"].create({"name":"junction","version":"2.0.1+d1f87d88"});
           }
         
 //# sourceMappingURL=junction.map
