@@ -44,7 +44,6 @@
             aria-label="Close"
           ></button>
         </div>
-
         <div class="modal-body">
           {{yield}}
 
@@ -52,7 +51,9 @@
             <h4>Are you sure you wish the permanently delete the selected
               record(s)?</h4>
           {{else}}
+
             {{#each this.type.currentType.modules as |module|}}
+
               {{#if
                 (and
                   (or
@@ -72,6 +73,7 @@
                   )
                 )
               }}
+
                 {{#if (eq module.input_type "checkbox")}}
                   <InputFields::Checkbox
                     @mutObjectModuleValue={{this.mutObjectModuleValue}}
@@ -92,6 +94,9 @@
                     @object={{this.objectModules}}
                     @addToMultiField={{this.addToMultiField}}
                     @removeFromMultiField={{this.removeFromMultiField}}
+                    @initEditorJS={{this.initEditorJS}}
+                    @uninitEditorJS={{this.uninitEditorJS}}
+                    @saveEditorData={{this.saveEditorData}}
                   />
 
                 {{else if (eq module.input_type "typeout")}}
@@ -185,17 +190,19 @@
                   />
 
                 {{/if}}
+
               {{/if}}
+
             {{/each}}
           {{/if}}
         </div>
-
         <div class="modal-footer p-0">
           <InputFields::Text
             @module={{hash input_slug="type" input_type="hidden"}}
             @object={{this.objectModules}}
           />
           <div class="w-100 d-flex align-items-center justify-content-between">
+
             {{#if this.object.currentObject.id}}
               <InputFields::Text
                 @module={{hash input_slug="id" input_type="hidden"}}
@@ -243,8 +250,10 @@
                   {{on "click" this.pushObject}}
                 >Save changes</button>
               {{/if}}
+
             {{else}}
               {{#if @multiEdit}}
+
                 <div class="d-flex justify-content-start align-items-center">
                   <div class="d-flex justify-content-start align-items-start">
                     <button
@@ -294,12 +303,14 @@
                   >Multi-edit save {{this.type.currentType.name}}</button>
                 {{/if}}
               {{else}}
+
                 <div>&nbsp;</div>
                 <button
                   type="button"
                   class="btn btn-primary"
                   {{on "click" this.pushObject}}
                 >Create new {{this.type.currentType.name}}</button>
+
               {{/if}}
             {{/if}}
           </div>

@@ -11,5 +11,6 @@ Router.map(function () {
   this.route('type', { path: '/track/:slug' });
   this.route('files');
   this.route('public', { path: '/public/form/:slug' });
-  this.route('docs');
+  this.route('interface');
+  this.route('docs', function () {});
 });
