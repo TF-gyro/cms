@@ -15,7 +15,6 @@ export default class TypesListTableRowOptionsComponent extends Component {
   @service object;
   @service type;
   @service colormodes;
-  @service blueprints;
 
   @action
   openBlueprintModal() {

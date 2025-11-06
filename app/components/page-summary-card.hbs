@@ -116,7 +116,10 @@
                   <li><a
                       {{on
                         "click"
-                        (fn this.blueprints.changeBlueprint blueprint)
+                        (fn
+                          this.blueprints.revertBlueprint
+                          blueprint.modules.types_json
+                        )
                       }}
                       class="dropdown-item"
                       href="#"

@@ -16,22 +16,13 @@ export default class BlueprintsService extends Service {
   @tracked junctionBlueprints = [];
   @tracked myBlueprints = [];
 
-  isValidURL = (urlString) => {
-    try {
-      new URL(urlString);
-      return true; // The string is a valid URL
-    } catch (e) {
-      return false; // The string is not a valid URL
-    }
-  };
-
   @action
   async downloadCurrentBlueprint(j = '') {
     this.type.loadingSearchResults = true;
 
     if (this.isValidURL(j)) {
       j = await fetch(j);
-      j = await response.json(j);
+      j = await j.json();
     } else if (
       typeof j === 'object' &&
       j.isTrusted === undefined &&
@@ -44,7 +35,7 @@ export default class BlueprintsService extends Service {
     }
 
     var types_json = [];
-    Object.entries(j).forEach((v, i) => {
+    Object.entries(this.types.json.modules).forEach((v, i) => {
       let type_slug = v[0];
       let type_obj = v[1];
 
@@ -238,6 +229,14 @@ export default class BlueprintsService extends Service {
   }
 
   @action
+  async revertBlueprint(t) {
+    this.type.loadingSearchResults = true;
+    this.types.json.modules = t;
+    await this.types.json.save();
+    window.location.href = '/';
+  }
+
+  @action
   async getBlueprints() {
     this.myBlueprints = await this.store.query('blueprint_record', {
       show_public_objects_only: false,
@@ -269,6 +268,9 @@ export default class BlueprintsService extends Service {
       );
       let data = await response.json();
       this.junctionBlueprints = data.data;
+      this.myBlueprints = await this.store.query('deleted_record', {
+        modules: { deleted_type: 'blueprint_record' },
+      });
 
       //show implementation summary
       const currentUrl = window.location.href;
@@ -310,7 +312,7 @@ export default class BlueprintsService extends Service {
       this.intervalId = setInterval(this.progressLoading, 5000);
 
       let response = await fetch(
-        'https://tribe.junction.express/custom/anthropic/get-response.php',
+        'https://agent-api.truearch.io/api/v1/generate-types',
         {
           method: 'POST',
           headers: {
@@ -323,15 +325,15 @@ export default class BlueprintsService extends Service {
       );
       let data = await response.json();
 
-      if (data !== undefined && data && data.json) {
+      if (data !== undefined && data && data.types) {
         if (
           (data.error !== undefined && data.error) ||
-          data.json === undefined
+          data.types === undefined
         ) {
           this.loadingProgress = 0;
           this.tryAgain = true;
         } else {
-          let data_json = data.json;
+          let data_json = data.types;
 
           if (data_json === undefined) {
             this.loadingProgress = 0;
@@ -359,7 +361,7 @@ export default class BlueprintsService extends Service {
 
             types_json['webapp']['project_description'] =
               this.projectDescription;
-            types_json['webapp']['implementation_summary'] = data.html;
+            types_json['webapp']['implementation_summary'] = data.html ? data.html : "No summary";
 
             if (data_json) {
               this.types.json.modules = {
@@ -412,7 +414,7 @@ export default class BlueprintsService extends Service {
       });
 
       let response = await fetch(
-        'https://tribe.junction.express/custom/anthropic/get-sample-data.php',
+        'https://agent-api.truearch.io/api/v1/generate-sample-data',
         {
           method: 'POST',
           headers: {
