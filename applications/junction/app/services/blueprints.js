@@ -247,8 +247,7 @@ export default class BlueprintsService extends Service {
       this.myBlueprints[0] !== undefined &&
       this.myBlueprints[0].id !== undefined
     ) {
-      let bp = new Modal(document.getElementById('blueprintAIPromptModal'), {});
-      bp.show();
+      // Modal auto-open removed - user can open manually via UI
     } else if (
       this.auth.projectDescription != '' &&
       Object.entries(this.types.json.modules).length <= 6
