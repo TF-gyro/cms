@@ -3,7 +3,6 @@ import ENV from 'junction/config/environment';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { service } from '@ember/service';
-import fetch from 'fetch';
 
 export default class AuthService extends Service {
   @service router;
@@ -17,9 +16,6 @@ export default class AuthService extends Service {
   @tracked junctionPassword = '';
   @tracked goToRouteAfterLogin = 'index';
   @tracked goToSlugAfterLogin = '';
-  @tracked projectDescription = '';
-  @tracked implementationSummary = '';
-  @tracked blueprintLink = '';
 
   checkIfLoggedIn = async () => {
     this.type.loadingSearchResults = true;
@@ -32,15 +28,6 @@ export default class AuthService extends Service {
     ) {
       this.type.loadingSearchResults = false;
       return true;
-    } else if (
-      cookiePassword !== null &&
-      ENV.JUNCTION_SLUG &&
-      this.junctionPassword == ''
-    ) {
-      this.inputPassword = cookiePassword;
-      await this.submitPassword();
-      this.type.loadingSearchResults = false;
-      return true;
     } else {
       this.type.loadingSearchResults = false;
       return false;
@@ -50,8 +37,8 @@ export default class AuthService extends Service {
   @action
   async submitPassword() {
     this.type.loadingSearchResults = true;
+    
     if (
-      ENV.JUNCTION_SLUG == 'junction' &&
       this.inputPassword !== '' &&
       this.junctionPassword !== '' &&
       this.inputPassword == this.junctionPassword
@@ -59,35 +46,9 @@ export default class AuthService extends Service {
       this.cookies.setCookie(ENV.JUNCTION_SLUG, this.inputPassword);
       this.type.loadingSearchResults = false;
       this.justGoToRouteAfterLogin();
-    } else if (ENV.JUNCTION_SLUG !== undefined && ENV.JUNCTION_SLUG != '') {
-      await fetch('https://tribe.junction.express/custom/auth/access.php', {
-        method: 'post',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          slug: ENV.JUNCTION_SLUG,
-          password: this.inputPassword,
-        }),
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          }
-        })
-        .then(async (response) => {
-          if (response !== undefined && response.authenticated === true) {
-            this.types.json.modules.webapp.name = response.title;
-            await this.types.json.save();
-            this.cookies.setCookie(ENV.JUNCTION_SLUG, this.inputPassword);
-            this.type.loadingSearchResults = false;
-            this.justGoToRouteAfterLogin();
-          } else {
-            this.type.loadingSearchResults = false;
-            alert('Incorrect password.');
-          }
-        });
+    } else {
+      this.type.loadingSearchResults = false;
+      alert('Incorrect password.');
     }
   }
 
@@ -113,76 +74,23 @@ export default class AuthService extends Service {
   async logout(e) {
     e.preventDefault();
 
-    await this.cookies.eraseCookie('junctionexpress_user_email');
-    await this.cookies.eraseCookie('junctionexpress_user_id');
     await this.cookies.eraseCookie(ENV.JUNCTION_SLUG);
 
-    if (ENV.JUNCTION_SLUG === 'junction') {
-      this.router.transitionTo('auth');
-    } else {
-      window.location.href = 'https://truearch.io';
-    }
+    this.router.transitionTo('auth');
   }
 
-  // TODO: clean up this function
   @action
   async getJunctionPassword() {
     if (ENV.JUNCTION_SLUG == undefined || ENV.JUNCTION_SLUG == '') {
       alert('Please define JUNCTION_SLUG in .ENV file');
-    } else if (ENV.JUNCTION_SLUG == 'junction') {
+    } else {
       this.junctionPassword = ENV.JUNCTION_PASSWORD;
-    } else if (
-      this.cookies.getCookie('junctionexpress_user_id') !== undefined
-    ) {
-      let user_id = this.cookies.getCookie('junctionexpress_user_id');
-      let response = await fetch(
-        'https://tribe.junction.express/custom/auth/access.php',
-        {
-          method: 'post',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            slug: ENV.JUNCTION_SLUG,
-            user_id: user_id,
-          }),
-        },
-      ).then((res) => {
-        if (!res.ok) return;
-
-        return res.json();
-      });
-
-      if (response === undefined || response.authenticated !== true) {
-        return null;
+      
+      // Check if user is already logged in
+      let cookiePassword = this.cookies.getCookie(ENV.JUNCTION_SLUG);
+      if (cookiePassword !== '' && cookiePassword == this.junctionPassword) {
+        this.justGoToRouteAfterLogin();
       }
-
-      this.cookies.setCookie(ENV.JUNCTION_SLUG, response.password);
-
-      if (
-        response.project_description !== undefined &&
-        response.project_description != ''
-      ) {
-        this.projectDescription = response.project_description;
-      }
-
-      if (
-        response.blueprint_link !== undefined &&
-        response.blueprint_link != ''
-      ) {
-        this.blueprintLink = response.blueprint_link;
-      }
-
-      if (
-        response.implementation_summary !== undefined &&
-        response.implementation_summary != ''
-      ) {
-        this.implementationSummary = response.implementation_summary;
-      }
-
-      this.type.loadingSearchResults = false;
-      this.justGoToRouteAfterLogin();
     }
   }
 }
