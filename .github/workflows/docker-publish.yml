@@ -66,14 +66,14 @@ jobs:
 
           echo "Detected branch: $BRANCH"
 
-          if [ "$BRANCH" = "master" ]; then
+          if [ "$BRANCH" = "main" ]; then
             IMAGE_TAG="${RAW_TAG}"
             LATEST_TAG="latest"
-          elif [ "$BRANCH" = "dev" ]; then
-            IMAGE_TAG="${RAW_TAG}-dev"
-            LATEST_TAG="latest-dev"
+          elif [ "$BRANCH" = "uat" ]; then
+            IMAGE_TAG="${RAW_TAG}-rc"
+            LATEST_TAG="latest-rc"
           else
-            echo "Skipping build: tag is not from master or dev branch."
+            echo "Skipping build: tag is not from main or uat branch."
             echo "SKIP_BUILD=true" >> $GITHUB_ENV
             exit 0
           fi
