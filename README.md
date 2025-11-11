@@ -1,26 +1,9 @@
-# flame-junction-src
+[![Stable Build](https://github.com/TF-gyro/cms/actions/workflows/docker-image-stable.yml/badge.svg?branch=main)](https://github.com/TF-gyro/cms/actions/workflows/docker-image-stable.yml) [![RC Build](https://github.com/TF-gyro/cms/actions/workflows/docker-image-uat.yml/badge.svg?branch=uat)](https://github.com/TF-gyro/cms/actions/workflows/docker-image-uat.yml)
 
-Use this repository to make changes to ember-junction blueprint. Always build new Junction for making changes. After making changes, follow steps to publish ember-junction blueprint to npmjs.com
 
-## Steps to publish ember-junction blueprint
+# **Gyro CMS**
 
-```
-chmod +x ./install/app.sh; bash ./install/app.sh;
-```
+Based on the work of [Junction](https://github.com/tribe-framework/junction)
 
-```
-chmod +x ./install/publish.sh; bash ./install/publish.sh;
-```
-
-## To re-build latest Junction
-
-```
-wget https://raw.githubusercontent.com/tribe-framework/flame-junction-src/master/install/build.sh; chmod +x build.sh; bash ./build.sh;
-```
-
-- Then fill in the .env file with Tribe credentials.
-
-## Validate
-
-- Test and validate the changes by using instructions in "To re-build latest Junction".
-- Make sure, after testing,
+**Gyro CMS** is a ready-to-go Content Management System (CMS) for **TrueArch**.
+It provides a comprehensive interface to manage the entire TrueArch ecosystem — from backend structure to actual content — allowing you to quickly plan, configure, and deploy backend services with ease.

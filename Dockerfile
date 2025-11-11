@@ -58,7 +58,7 @@ RUN curl -L -o tribe.tar.gz https://github.com/tf-gyro/tribe/archive/refs/tags/v
     rm pma.tar.gz
 
 ## junction
-COPY "applications/junction/dist" "junction/dist"
+COPY "dist" "junction/dist"
 
 RUN chown -R www-data: uploads/ logs/ && \
     service php8.3-fpm restart;

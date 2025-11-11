@@ -1,18 +1,10 @@
-name: Build Docker image
+name: Stable Build
 
 # Configures this workflow to run every time a tag is pushed to the repo.
 on:
   push:
     tags:
       - 'v*'
-      - '*'
-    branches:
-      - main
-
-  create:
-    tags:
-      - 'v*'
-      - '*'
 
 # Defines two custom environment variables for the workflow.
 # These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
@@ -69,11 +61,8 @@ jobs:
           if [ "$BRANCH" = "main" ]; then
             IMAGE_TAG="${RAW_TAG}"
             LATEST_TAG="latest"
-          elif [ "$BRANCH" = "uat" ]; then
-            IMAGE_TAG="${RAW_TAG}-rc"
-            LATEST_TAG="latest-rc"
           else
-            echo "Skipping build: tag is not from main or uat branch."
+            echo "Skipping build: tag is not from master branch."
             echo "SKIP_BUILD=true" >> $GITHUB_ENV
             exit 0
           fi
