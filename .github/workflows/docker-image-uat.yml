@@ -60,7 +60,7 @@ jobs:
 
           if [ "$BRANCH" = "uat" ]; then
             IMAGE_TAG="${RAW_TAG}"
-            LATEST_TAG="latest-dev"
+            LATEST_TAG="latest-rc"
           else
             echo "Skipping build: tag is not from uat branch."
             echo "SKIP_BUILD=true" >> $GITHUB_ENV
