@@ -45,11 +45,14 @@ jobs:
         run: |
           RAW_TAG="${GITHUB_REF_NAME#v}"  # remove leading 'v' (v1.2.9 → 1.2.9)
 
-          # Fetch all branches and tags (needed in detached HEAD)
-          git fetch --all --tags
+          git fetch origin +refs/heads/*:refs/remotes/origin/*
 
-          # Try to detect the branch this tag belongs to
-          BRANCH=$(git branch -r --contains $GITHUB_SHA | grep -Eo 'origin/[^ ]+' | head -1 | sed 's|origin/||')
+          BRANCH=$(git for-each-ref --format='%(refname:short)' \
+            --contains $GITHUB_SHA \
+            refs/remotes/origin/* | head -1)
+
+          # strip "origin/"
+          BRANCH=${BRANCH#origin/}
 
           # Fallback: use event context if branch detection failed
           if [ -z "$BRANCH" ]; then
