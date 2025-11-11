@@ -1,4 +1,4 @@
-name: Dev Build
+name: RC Build
 
 # Configures this workflow to run every time a tag is pushed to the repo.
 on:
