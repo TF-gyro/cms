@@ -1,3 +1,27 @@
+# ------------------------------
+# 1. Builder stage
+# ------------------------------
+FROM node:20 AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first (to leverage Docker cache)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install -g npm@latest && npm install
+
+# Copy the rest of the source code
+COPY . .
+
+# Build the Ember app
+RUN npm run build
+
+
+# ------------------------------
+# 2. Final runtime stage
+# ------------------------------
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -58,7 +82,7 @@ RUN curl -L -o tribe.tar.gz https://github.com/tf-gyro/tribe/archive/refs/tags/v
     rm pma.tar.gz
 
 ## junction
-COPY "dist" "junction/dist"
+COPY --from=builder "/app/dist" "junction/dist"
 
 RUN chown -R www-data: uploads/ logs/ && \
     service php8.3-fpm restart;
