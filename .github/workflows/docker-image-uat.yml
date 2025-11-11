@@ -58,11 +58,11 @@ jobs:
 
           echo "Detected branch: $BRANCH"
 
-          if [ "$BRANCH" = "dev" ]; then
+          if [ "$BRANCH" = "uat" ]; then
             IMAGE_TAG="${RAW_TAG}"
             LATEST_TAG="latest-dev"
           else
-            echo "Skipping build: tag is not from dev branch."
+            echo "Skipping build: tag is not from uat branch."
             echo "SKIP_BUILD=true" >> $GITHUB_ENV
             exit 0
           fi

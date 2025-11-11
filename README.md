@@ -1,4 +1,4 @@
-[![Stable Build](https://github.com/TF-gyro/cms/actions/workflows/docker-image-stable.yml/badge.svg?branch=main)](https://github.com/TF-gyro/cms/actions/workflows/docker-image-stable.yml) [![Dev Build](https://github.com/TF-gyro/cms/actions/workflows/docker-image-dev.yml/badge.svg?branch=dev)](https://github.com/TF-gyro/cms/actions/workflows/docker-image-dev.yml)
+[![Stable Build](https://github.com/TF-gyro/cms/actions/workflows/docker-image-stable.yml/badge.svg?branch=main)](https://github.com/TF-gyro/cms/actions/workflows/docker-image-stable.yml) [![RC Build](https://github.com/TF-gyro/cms/actions/workflows/docker-image-uat.yml/badge.svg?branch=uat)](https://github.com/TF-gyro/cms/actions/workflows/docker-image-uat.yml)
 
 
 # **Gyro CMS**
