@@ -1,2 +1,27 @@
 {{page-title "Interface"}}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="mb-4">
+                <h1 class="display-4">AI Chat Interface</h1>
+                <p class="lead text-muted">Interactive AI assistant powered by modern Ember Octane</p>
+            </div>
+            
+            <AiChat::Chatbox />
+            
+            <div class="mt-4">
+                <div class="alert alert-info">
+                    <h5 class="alert-heading"><i class="fa-solid fa-circle-info"></i> Quick Tips</h5>
+                    <ul class="mb-0">
+                        <li>Press <kbd>Enter</kbd> to send your message</li>
+                        <li>Press <kbd>Shift</kbd> + <kbd>Enter</kbd> for a new line</li>
+                        <li>Click the trash icon to clear chat history</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{outlet}}

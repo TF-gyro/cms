@@ -1,0 +1,136 @@
+{{! AI Chat Offcanvas }}
+<div
+    class="offcanvas offcanvas-end"
+    data-bs-scroll="true"
+    data-bs-backdrop="true"
+    tabindex="-1"
+    id="aiChatOffcanvas"
+    aria-labelledby="aiChatOffcanvasLabel"
+>
+    <div class="offcanvas-header bg-primary text-white">
+        <h5 class="offcanvas-title d-flex align-items-center" id="aiChatOffcanvasLabel">
+            <i class="fa-solid fa-robot me-2"></i>
+            AI Assistant
+        </h5>
+        <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+        ></button>
+    </div>
+
+    <div class="offcanvas-body p-0 d-flex flex-column" style="height: 100%;">
+        {{! Chat Messages Area }}
+        <div class="flex-grow-1 overflow-auto p-3">
+            {{#if this.messages.length}}
+                {{#each this.messages as |message|}}
+                    <div class="mb-3 d-flex {{if (eq message.role 'user') 'justify-content-end' 'justify-content-start'}}">
+                        <div class="d-flex align-items-start gap-2 {{if (eq message.role 'user') 'flex-row-reverse' ''}} w-100" style="max-width: 85%;">
+                            {{! Avatar }}
+                            <div class="flex-shrink-0">
+                                {{#if (eq message.role "user")}}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                {{else}}
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                        <i class="fa-solid fa-robot"></i>
+                                    </div>
+                                {{/if}}
+                            </div>
+
+                            {{! Message Bubble }}
+                            <div class="flex-grow-1">
+                                <div class="card {{if (eq message.role 'user') 'bg-primary text-white' 'bg-light'}} border-0 shadow-sm">
+                                    <div class="card-body p-2">
+                                        <p class="mb-0 small">{{message.content}}</p>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-1 {{if (eq message.role 'user') 'text-end' ''}}">
+                                    {{message.timestamp}}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            {{else}}
+                <div class="text-center text-muted py-5">
+                    <i class="fa-solid fa-comments fa-3x mb-3 opacity-25"></i>
+                    <p class="mb-0">Start a conversation</p>
+                    <small>Type your message below</small>
+                </div>
+            {{/if}}
+
+            {{! Typing Indicator }}
+            {{#if this.isTyping}}
+                <div class="mb-3 d-flex justify-content-start">
+                    <div class="d-flex align-items-start gap-2 w-100" style="max-width: 85%;">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="card bg-light border-0 shadow-sm">
+                                <div class="card-body p-2">
+                                    <div class="d-flex gap-1">
+                                        <span class="badge bg-secondary rounded-circle" style="width: 8px; height: 8px; animation: pulse 1.4s infinite;"></span>
+                                        <span class="badge bg-secondary rounded-circle" style="width: 8px; height: 8px; animation: pulse 1.4s infinite 0.2s;"></span>
+                                        <span class="badge bg-secondary rounded-circle" style="width: 8px; height: 8px; animation: pulse 1.4s infinite 0.4s;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{/if}}
+        </div>
+
+        {{! Chat Input Area - Fixed at bottom }}
+        <div class="border-top bg-white p-3">
+            {{#if this.messages.length}}
+                <div class="mb-2 d-flex justify-content-end">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        {{on "click" this.clearChat}}
+                    >
+                        <i class="fa-solid fa-trash me-1"></i>
+                        Clear chat
+                    </button>
+                </div>
+            {{/if}}
+
+            <form {{on "submit" this.handleSubmit}}>
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <Textarea
+                            @value={{this.currentMessage}}
+                            class="form-control"
+                            rows="2"
+                            placeholder="Type your message..."
+                            disabled={{this.isTyping}}
+                            {{on "keydown" this.handleKeyDown}}
+                        />
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            disabled={{or this.isTyping (not this.currentMessage)}}
+                        >
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <kbd>Enter</kbd> to send, <kbd>Shift+Enter</kbd> for new line
+                </small>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{yield}}
+
