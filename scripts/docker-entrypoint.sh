@@ -2,6 +2,9 @@
 
 set -e
 
+cd /var/www
+php sync-dist.php
+
 service php8.3-fpm restart
 service nginx start
 
