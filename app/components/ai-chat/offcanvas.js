@@ -1,125 +1,161 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
+import { service } from '@ember/service';
+import { Modal } from 'bootstrap';
 
 export default class AiChatOffcanvasComponent extends Component {
-    @tracked messages = [];
-    @tracked currentMessage = '';
-    @tracked isTyping = false;
+  @service aiChat;
+  @service store;
 
-    /**
-     * Format timestamp for display
-     */
-    getTimestamp() {
-        const now = new Date();
-        return now.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        });
+  @tracked currentMessage = '';
+
+  constructor() {
+    super(...arguments);
+    // Load chats on component initialization
+    this.aiChat.loadChats();
+  }
+
+  /**
+   * Get messages from current chat
+   */
+  get messages() {
+    return this.aiChat.currentChat?.modules?.messages || [];
+  }
+
+  /**
+   * Get current chat title
+   */
+  get chatTitle() {
+    return this.aiChat.currentChat?.modules?.title || 'New Chat';
+  }
+
+  /**
+   * Get all chats for dropdown
+   */
+  get allChats() {
+    return this.aiChat.allChats;
+  }
+
+  /**
+   * Check if AI is currently processing
+   */
+  get isTyping() {
+    return this.aiChat.isLoading;
+  }
+
+  /**
+   * Check if there's a pending types_json to apply
+   */
+  get hasPendingTypesJson() {
+    return this.aiChat.pendingTypesJson !== null;
+  }
+
+  /**
+   * Handle form submission
+   */
+  @action
+  async handleSubmit(event) {
+    event.preventDefault();
+
+    if (!this.currentMessage.trim() || this.isTyping) {
+      return;
     }
 
-    /**
-     * Handle form submission
-     */
-    @action
-    handleSubmit(event) {
-        event.preventDefault();
+    const message = this.currentMessage.trim();
+    this.currentMessage = '';
 
-        if (!this.currentMessage.trim() || this.isTyping) {
-            return;
-        }
+    await this.aiChat.sendMessage(message);
 
-        // Add user message
-        this.messages = [
-            ...this.messages,
-            {
-                role: 'user',
-                content: this.currentMessage.trim(),
-                timestamp: this.getTimestamp(),
-            },
-        ];
+    console.log('After sendMessage - hasPendingTypesJson:', this.hasPendingTypesJson);
+    console.log('pendingTypesJson value:', this.aiChat.pendingTypesJson);
 
-        // Store message for API call
-        const userMessage = this.currentMessage.trim();
-
-        // Clear input
-        this.currentMessage = '';
-
-        // Simulate AI response (replace with actual API call)
-        this.sendToAI(userMessage);
+    // Show modal if types_json was returned
+    if (this.hasPendingTypesJson) {
+      console.log('Attempting to show modal...');
+      // Use Bootstrap's modal API directly
+      const modalElement = document.getElementById('applyTypesModal');
+      if (modalElement) {
+        const modal = new Modal(modalElement);
+        modal.show();
+        console.log('Modal shown');
+      } else {
+        console.error('Modal element not found');
+      }
     }
 
-    /**
-     * Handle keyboard shortcuts
-     */
-    @action
-    handleKeyDown(event) {
-        // Submit on Enter (without Shift)
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            this.handleSubmit(event);
-        }
+    // Scroll to bottom after message is added
+    this.scrollToBottom();
+  }
+
+  /**
+   * Handle keyboard shortcuts
+   */
+  @action
+  handleKeyDown(event) {
+    // Submit on Enter (without Shift)
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.handleSubmit(event);
+    }
+  }
+
+  /**
+   * Create a new chat
+   */
+  @action
+  async handleNewChat() {
+    await this.aiChat.createNewChat();
+    this.currentMessage = '';
+  }
+
+  /**
+   * Switch to a different chat
+   */
+  @action
+  handleSelectChat(chat) {
+    this.aiChat.selectChat(chat);
+    this.currentMessage = '';
+    this.scrollToBottom();
+  }
+
+  /**
+   * Clear current chat messages
+   */
+  @action
+  async clearChat() {
+    if (!this.aiChat.currentChat) {
+      return;
     }
 
-    /**
-     * Send message to AI and handle response
-     * TODO: Replace with actual API integration
-     */
-    @action
-    async sendToAI(message) {
-        this.isTyping = true;
-
-        try {
-            // TODO: Replace this with actual API call
-            // Example: const response = await fetch('/api/ai/chat', { ... });
-
-            // Simulate API delay
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-
-            // Mock response (replace with actual API response)
-            const aiResponse = `I received your message: "${message}". This is a placeholder response. Integrate with your AI API here.`;
-
-            // Add AI response
-            this.messages = [
-                ...this.messages,
-                {
-                    role: 'assistant',
-                    content: aiResponse,
-                    timestamp: this.getTimestamp(),
-                },
-            ];
-        } catch (error) {
-            console.error('Error sending message to AI:', error);
-
-            // Add error message
-            this.messages = [
-                ...this.messages,
-                {
-                    role: 'assistant',
-                    content:
-                        'Sorry, I encountered an error. Please try again.',
-                    timestamp: this.getTimestamp(),
-                },
-            ];
-        } finally {
-            this.isTyping = false;
-        }
+    if (
+      confirm(
+        'Are you sure you want to clear this chat history? This cannot be undone.',
+      )
+    ) {
+      this.aiChat.currentChat.modules = {
+        ...this.aiChat.currentChat.modules,
+        messages: [],
+      };
+      await this.aiChat.currentChat.save();
+      this.currentMessage = '';
     }
+  }
 
-    /**
-     * Clear all chat messages
-     */
-    @action
-    clearChat() {
-        if (
-            confirm(
-                'Are you sure you want to clear the chat history? This cannot be undone.',
-            )
-        ) {
-            this.messages = [];
-            this.currentMessage = '';
-        }
-    }
+  /**
+   * Scroll chat to bottom
+   */
+  @action
+  scrollToBottom() {
+    // Use setTimeout to ensure DOM has updated
+    setTimeout(() => {
+      const messageArea = document.querySelector(
+        '#aiChatOffcanvas .message-area',
+      );
+      if (messageArea) {
+        messageArea.scrollTop = messageArea.scrollHeight;
+      }
+    }, 100);
+  }
+
 }
-

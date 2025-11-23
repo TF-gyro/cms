@@ -243,7 +243,7 @@ export default class BlueprintsService extends Service {
     );
     let data = await response.json();
     this.junctionBlueprints = data.data;
-    
+
     // Get deleted blueprints (previously used)
     this.myBlueprints = await this.store.query('deleted_record', {
       modules: { deleted_type: 'blueprint_record' },
@@ -276,7 +276,9 @@ export default class BlueprintsService extends Service {
       clearInterval(this.intervalId);
       this.loadingProgress = 0;
       this.tryAgain = true;
-      alert('Blueprint generation timed out after 120 seconds. Please try again with a shorter or clearer project description.');
+      alert(
+        'Blueprint generation timed out after 120 seconds. Please try again with a shorter or clearer project description.',
+      );
     }
   };
 
@@ -339,7 +341,9 @@ export default class BlueprintsService extends Service {
 
             types_json['webapp']['project_description'] =
               this.projectDescription;
-            types_json['webapp']['implementation_summary'] = data.html ? data.html : "No summary";
+            types_json['webapp']['implementation_summary'] = data.html
+              ? data.html
+              : 'No summary';
 
             if (data_json) {
               this.types.json.modules = {

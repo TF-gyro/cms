@@ -37,7 +37,7 @@ export default class AuthService extends Service {
   @action
   async submitPassword() {
     this.type.loadingSearchResults = true;
-    
+
     if (
       this.inputPassword !== '' &&
       this.junctionPassword !== '' &&
@@ -85,7 +85,7 @@ export default class AuthService extends Service {
       alert('Please define JUNCTION_SLUG in .ENV file');
     } else {
       this.junctionPassword = ENV.JUNCTION_PASSWORD;
-      
+
       // Check if user is already logged in
       let cookiePassword = this.cookies.getCookie(ENV.JUNCTION_SLUG);
       if (cookiePassword !== '' && cookiePassword == this.junctionPassword) {

@@ -6,15 +6,56 @@
     tabindex="-1"
     id="aiChatOffcanvas"
     aria-labelledby="aiChatOffcanvasLabel"
+    style="width: 400px;"
 >
     <div class="offcanvas-header bg-primary text-white">
-        <h5 class="offcanvas-title d-flex align-items-center" id="aiChatOffcanvasLabel">
-            <i class="fa-solid fa-robot me-2"></i>
-            AI Assistant
-        </h5>
+        {{! Chat Dropdown }}
+        <div class="dropdown flex-grow-1">
+            <button
+                class="btn btn-primary dropdown-toggle text-start w-100 d-flex align-items-center justify-content-between"
+                type="button"
+                id="chatDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                <span class="d-flex align-items-center">
+                    <i class="fa-solid fa-robot me-2"></i>
+                    <span class="text-truncate" style="max-width: 200px;">{{this.chatTitle}}</span>
+                </span>
+            </button>
+            <ul class="dropdown-menu w-100" aria-labelledby="chatDropdown">
+                <li>
+                    <button
+                        type="button"
+                        class="dropdown-item fw-bold text-primary"
+                        {{on "click" this.handleNewChat}}
+                    >
+                        <i class="fa-solid fa-plus me-2"></i>
+                        New Chat
+                    </button>
+                </li>
+                {{#if this.allChats.length}}
+                    <li><hr class="dropdown-divider" /></li>
+                    {{#each this.allChats as |chat|}}
+                        <li>
+                            <button
+                                type="button"
+                                class="dropdown-item {{if (eq chat this.aiChat.currentChat) 'active' ''}}"
+                                {{on "click" (fn this.handleSelectChat chat)}}
+                            >
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-comment-dots me-2"></i>
+                                    <span class="text-truncate">{{chat.modules.title}}</span>
+                                </div>
+                            </button>
+                        </li>
+                    {{/each}}
+                {{/if}}
+            </ul>
+        </div>
         <button
             type="button"
-            class="btn-close btn-close-white"
+            class="btn-close btn-close-white ms-2"
             data-bs-dismiss="offcanvas"
             aria-label="Close"
         ></button>
@@ -22,7 +63,7 @@
 
     <div class="offcanvas-body p-0 d-flex flex-column" style="height: 100%;">
         {{! Chat Messages Area }}
-        <div class="flex-grow-1 overflow-auto p-3">
+        <div class="flex-grow-1 overflow-auto p-3 message-area">
             {{#if this.messages.length}}
                 {{#each this.messages as |message|}}
                     <div class="mb-3 d-flex {{if (eq message.role 'user') 'justify-content-end' 'justify-content-start'}}">
@@ -44,12 +85,9 @@
                             <div class="flex-grow-1">
                                 <div class="card {{if (eq message.role 'user') 'bg-primary text-white' 'bg-light'}} border-0 shadow-sm">
                                     <div class="card-body p-2">
-                                        <p class="mb-0 small">{{message.content}}</p>
+                                        <p class="mb-0 small" style="white-space: pre-wrap;">{{message.content}}</p>
                                     </div>
                                 </div>
-                                <small class="text-muted d-block mt-1 {{if (eq message.role 'user') 'text-end' ''}}">
-                                    {{message.timestamp}}
-                                </small>
                             </div>
                         </div>
                     </div>
@@ -131,6 +169,9 @@
         </div>
     </div>
 </div>
+
+{{! Apply Types Confirmation Modal }}
+<AiChat::ApplyTypesModal />
 
 {{yield}}
 

@@ -16,8 +16,9 @@ module('Unit | Utils | system-types', function () {
       'apikey_record',
       'platform_record',
       'blueprint_record',
+      'ai_chat',
     ]);
-    assert.strictEqual(SYSTEM_TYPES.length, 6);
+    assert.strictEqual(SYSTEM_TYPES.length, 7);
   });
 
   test('isSystemType returns true for all system types', function (assert) {
@@ -109,10 +110,7 @@ module('Unit | Utils | system-types', function () {
       'Post',
       'User types should be preserved',
     );
-    assert.notOk(
-      filtered.webapp,
-      'System types should be removed',
-    );
+    assert.notOk(filtered.webapp, 'System types should be removed');
   });
 
   test('filterSystemTypes handles empty object', function (assert) {
@@ -191,4 +189,3 @@ module('Unit | Utils | system-types', function () {
     );
   });
 });
-

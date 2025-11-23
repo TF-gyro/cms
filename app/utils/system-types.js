@@ -1,6 +1,6 @@
 /**
  * System Types Utility
- * 
+ *
  * Centralized definition of system/reserved types in Junction CMS.
  * These types are excluded from user-facing operations like blueprint generation,
  * type filtering, and certain UI interactions.
@@ -13,6 +13,7 @@ export const SYSTEM_TYPES = [
   'apikey_record',
   'platform_record',
   'blueprint_record',
+  'ai_chat',
 ];
 
 /**
@@ -64,4 +65,3 @@ export function filterSystemTypes(typesObject) {
 export function getUserTypes(typesObject) {
   return filterSystemTypes(typesObject);
 }
-

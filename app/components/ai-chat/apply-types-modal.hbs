@@ -1,0 +1,66 @@
+{{! Blueprint Application Confirmation Modal }}
+<div
+  class="modal fade"
+  id="applyTypesModal"
+  tabindex="-1"
+  aria-labelledby="applyTypesModalLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="applyTypesModalLabel">
+          <i class="fa-solid fa-wand-magic-sparkles me-2"></i>
+          Apply Blueprint Changes
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          {{on "click" this.handleCancel}}
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info mb-3">
+          <i class="fa-solid fa-circle-info me-2"></i>
+          <strong>AI has generated a new blueprint structure.</strong>
+        </div>
+        <p class="mb-2">
+          The AI has created or modified your application's data structure (types.json).
+        </p>
+        <p class="mb-0">
+          <strong>Applying these changes will:</strong>
+        </p>
+        <ul class="mt-2">
+          <li>Update your application's blueprint</li>
+          <li>Reload the page to reflect the changes</li>
+          <li>Preserve all existing data</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+          {{on "click" this.handleCancel}}
+        >
+          <i class="fa-solid fa-xmark me-1"></i>
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          {{on "click" this.handleApply}}
+        >
+          <i class="fa-solid fa-check me-1"></i>
+          Apply Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{yield}}
+
