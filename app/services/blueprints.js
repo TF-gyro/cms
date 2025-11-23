@@ -242,49 +242,31 @@ export default class BlueprintsService extends Service {
       show_public_objects_only: false,
     });
 
-    if (
-      Object.entries(this.types.json.modules).length <= 6 &&
-      this.myBlueprints[0] !== undefined &&
-      this.myBlueprints[0].id !== undefined
-    ) {
-      // Modal auto-open removed - user can open manually via UI
-    } else if (
-      this.auth.projectDescription != '' &&
-      Object.entries(this.types.json.modules).length <= 6
-    ) {
-      await this.getAI();
-    } else if (
-      this.auth.blueprintLink != '' &&
-      Object.entries(this.types.json.modules).length <= 6
-    ) {
-      await this.changeBlueprint(
-        this.auth.blueprintLink,
-        this.auth.implementationSummary,
-      );
-    } else {
-      let response = await fetch(
-        'https://tribe.junction.express/api.php/blueprint',
-      );
-      let data = await response.json();
-      this.junctionBlueprints = data.data;
-      this.myBlueprints = await this.store.query('deleted_record', {
-        modules: { deleted_type: 'blueprint_record' },
-      });
+    // Fetch available junction blueprints
+    let response = await fetch(
+      'https://tribe.junction.express/api.php/blueprint',
+    );
+    let data = await response.json();
+    this.junctionBlueprints = data.data;
+    
+    // Get deleted blueprints (previously used)
+    this.myBlueprints = await this.store.query('deleted_record', {
+      modules: { deleted_type: 'blueprint_record' },
+    });
 
-      //show implementation summary
-      const currentUrl = window.location.href;
-      const url = new URL(currentUrl);
-      const hash = url.hash;
-      if (hash == '#showImplementationSummary') {
-        document.querySelector('#blueprintConsultationModal-btn').click();
-      }
+    // Show implementation summary if hash is present
+    const currentUrl = window.location.href;
+    const url = new URL(currentUrl);
+    const hash = url.hash;
+    if (hash == '#showImplementationSummary') {
+      document.querySelector('#blueprintConsultationModal-btn').click();
     }
   }
 
   @tracked projectDescription = this.types.json.modules.webapp
     .project_description
     ? this.types.json.modules.webapp.project_description
-    : this.auth.projectDescription;
+    : '';
 
   @tracked loadingProgress = 0;
   @tracked tryAgain = false;
@@ -297,7 +279,9 @@ export default class BlueprintsService extends Service {
 
     if (this.totalTime > 120) {
       clearInterval(this.intervalId);
-      this.getAI();
+      this.loadingProgress = 0;
+      this.tryAgain = true;
+      alert('Blueprint generation timed out after 120 seconds. Please try again with a shorter or clearer project description.');
     }
   };
 
