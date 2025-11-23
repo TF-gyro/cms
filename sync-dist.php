@@ -1,7 +1,7 @@
 <?php
-if (file_exists('dist/index.html') !== false) {
+if (file_exists('junction/index.html') !== false) {
 	//get html
-	$html = file_get_contents('dist/index.html');
+	$html = file_get_contents('junction/index.html');
 
 	//replace head, before title
 	$html = str_replace('<title>', '<?php include_once("php/_head.php");?><title>', $html);
@@ -34,7 +34,7 @@ if (file_exists('dist/index.html') !== false) {
 
 	//remove identified tags
 	foreach ($remove as $item)
-	  $item->parentNode->removeChild($item); 
+	  $item->parentNode->removeChild($item);
 
 	//save edit dom html
 	$html = $dom->saveHTML();
@@ -43,11 +43,11 @@ if (file_exists('dist/index.html') !== false) {
 	$html = '<?php include_once("php/_init.php");?>'.$html;
 
 	//save to file
-	file_put_contents('dist/index.php', $html);
+	file_put_contents('junction/index.php', $html);
 
 	//echo success message on commandline
 	echo '~~~~~~~~~~'."\r\n";
-	echo `tput setaf 2`.'Middleware successfully installed. Synced "/dist" folder with PHP.'.`tput sgr0`."\r\n";
+	echo `tput setaf 2`.'Middleware successfully installed. Synced "/junction" folder with PHP.'.`tput sgr0`."\r\n";
 	echo '~~~~~~~~~~'."\r\n";
 }
 else {
