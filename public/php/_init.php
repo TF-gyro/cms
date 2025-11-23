@@ -1,1 +1,1 @@
-<?php require __DIR__ . '/../../../_init.php'; ?>
+<?php require __DIR__ . '/../../_init.php'; ?>
