@@ -14,7 +14,7 @@
       {{#each-in this.types.json.modules as |key type|}}
         {{#if
           (and
-            (and type.slug (not-eq type.slug "webapp"))
+            (and type.slug (not (is-system-type type.slug)))
             (not-eq type.hidden true)
           )
         }}

@@ -3,8 +3,8 @@
   {{#if this.type.currentType}}
     {{#if
       (and
-        (not-eq this.type.currentType.slug "deleted_record")
-        (not-eq this.type.currentType.slug "file_record")
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "deleted_record")))
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "file_record")))
       )
     }}
       <div

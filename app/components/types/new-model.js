@@ -4,6 +4,7 @@ import { service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { Modal } from 'bootstrap';
 import { later } from '@ember/runloop';
+import { isUserType } from 'junction/utils/system-types';
 
 export default class TypesNewModelComponent extends Component {
   @tracked trackName = '';
@@ -46,7 +47,7 @@ export default class TypesNewModelComponent extends Component {
 
       var exists = false;
       Object.keys(this.types.json.modules).forEach((track) => {
-        if (track != 'webapp') {
+        if (isUserType(track)) {
           if (
             track == typeSlug ||
             this.types.json.modules[track].name.toLowerCase() ==

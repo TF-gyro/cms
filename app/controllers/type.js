@@ -3,6 +3,7 @@ import { service } from '@ember/service';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import Sortable from 'sortablejs';
+import { isSystemType } from 'junction/utils/system-types';
 
 export default class TypeController extends Controller {
   @service type;
@@ -14,11 +15,10 @@ export default class TypeController extends Controller {
 
   @action
   startWobble() {
-    if (
-      this.type.currentType.slug != 'deleted_record' &&
-      this.type.currentType.slug != 'file_record'
-    )
+    const slug = this.type.currentType.slug;
+    if (slug !== 'deleted_record' && slug !== 'file_record') {
       document.querySelector('#trackOptionButtons').classList.remove('d-none');
+    }
 
     this.activateReordering = true;
     this.initDragDrop();
@@ -26,11 +26,10 @@ export default class TypeController extends Controller {
 
   @action
   stopWobble() {
-    if (
-      this.type.currentType.slug != 'deleted_record' &&
-      this.type.currentType.slug != 'file_record'
-    )
+    const slug = this.type.currentType.slug;
+    if (slug !== 'deleted_record' && slug !== 'file_record') {
       document.querySelector('#trackOptionButtons').classList.add('d-none');
+    }
 
     this.activateReordering = false;
     this.stopDragDrop();

@@ -4,7 +4,7 @@ import { render, click, fillIn } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 module('Integration | Component | ai-chat/chatbox', function (hooks) {
-    setupRenderingTest(hooks);
+  setupRenderingTest(hooks);
 
     test('it renders with empty state', async function (assert) {
         await render(hbs`<AiChat::Chatbox />`);
@@ -47,7 +47,7 @@ module('Integration | Component | ai-chat/chatbox', function (hooks) {
     });
 
     test('it clears chat when clear button is clicked', async function (assert) {
-        await render(hbs`<AiChat::Chatbox />`);
+    await render(hbs`<AiChat::Chatbox />`);
 
         await fillIn('textarea', 'Test message');
         await click('button[type="submit"]');
@@ -61,5 +61,5 @@ module('Integration | Component | ai-chat/chatbox', function (hooks) {
         assert
             .dom('.text-center.text-muted')
             .containsText('Start a conversation with the AI assistant');
-    });
+  });
 });

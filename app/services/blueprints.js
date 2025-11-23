@@ -5,6 +5,7 @@ import { later } from '@ember/runloop';
 import { service } from '@ember/service';
 import ENV from 'junction/config/environment';
 import { Modal } from 'bootstrap';
+import { isSystemType } from 'junction/utils/system-types';
 
 export default class BlueprintsService extends Service {
   @service colormodes;
@@ -39,13 +40,7 @@ export default class BlueprintsService extends Service {
       let type_slug = v[0];
       let type_obj = v[1];
 
-      if (
-        type_slug != 'deleted_record' &&
-        type_slug != 'platform_record' &&
-        type_slug != 'blueprint_record' &&
-        type_slug != 'file_record' &&
-        type_slug != 'apikey_record'
-      ) {
+      if (!isSystemType(type_slug)) {
         types_json[type_slug] = type_obj;
       }
     });
@@ -384,14 +379,7 @@ export default class BlueprintsService extends Service {
         let type_slug = v[0];
         let type_obj = v[1];
 
-        if (
-          type_slug != 'webapp' &&
-          type_slug != 'deleted_record' &&
-          type_slug != 'file_record' &&
-          type_slug != 'apikey_record' &&
-          type_slug != 'platform_record' &&
-          type_slug != 'blueprint_record'
-        ) {
+        if (!isSystemType(type_slug)) {
           types_json[type_slug] = type_obj;
         }
       });

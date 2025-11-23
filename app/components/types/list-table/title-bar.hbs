@@ -1,5 +1,5 @@
 {{#if
-  (not (or (eq @type.slug "deleted_record") (eq @type.slug "file_record")))
+  (not (or (and (is-system-type @type.slug) (eq @type.slug "deleted_record")) (and (is-system-type @type.slug) (eq @type.slug "file_record"))))
 }}
   <div id="trackOptionButtons" class="position-absolute top-0 start-0 d-none">
     <button
@@ -23,7 +23,7 @@
 
   <h1
     class="text-capitalize text-center mt-5 px-0 display-2 mb-4
-      {{if (eq @type.slug 'deleted_record') 'text-danger'}}"
+      {{if (and (is-system-type @type.slug) (eq @type.slug 'deleted_record')) 'text-danger'}}"
   >
     {{@type.plural}}
   </h1>
@@ -32,8 +32,8 @@
 
     {{#if
       (and
-        (not-eq this.type.currentType.slug "deleted_record")
-        (not-eq this.type.currentType.slug "apikey_record")
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "deleted_record")))
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "apikey_record")))
       )
     }}
       {{#if
@@ -66,9 +66,9 @@
 
     {{#if
       (and
-        (not-eq this.type.currentType.slug "deleted_record")
-        (not-eq this.type.currentType.slug "file_record")
-        (not-eq this.type.currentType.slug "apikey_record")
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "deleted_record")))
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "file_record")))
+        (not (and (is-system-type this.type.currentType.slug) (eq this.type.currentType.slug "apikey_record")))
       )
     }}
       <button
@@ -131,7 +131,7 @@
       </div>
     {{/unless}}
 
-    {{#if (eq @type.slug "deleted_record")}}
+    {{#if (and (is-system-type @type.slug) (eq @type.slug "deleted_record"))}}
       <div
         class="order-1 order-lg-3 col-lg-4 px-0 col-12 my-1 d-flex justify-content-end"
       >

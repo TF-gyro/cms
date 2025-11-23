@@ -68,7 +68,7 @@
         {{/if}}
       {{/unless}}
 
-      {{#if (eq @type.slug "file_record")}}
+      {{#if (and (is-system-type @type.slug) (eq @type.slug "file_record"))}}
         <a
           class="badge badge-sm border border-1 border-{{this.colormodes.mode}}
             bg-{{this.colormodes.inverseMode}}
