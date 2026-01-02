@@ -143,6 +143,14 @@ export default class AiChatOffcanvasComponent extends Component {
   }
 
   /**
+   * Set the chat mode (types or frontend)
+   */
+  @action
+  setMode(mode) {
+    this.aiChat.setMode(mode);
+  }
+
+  /**
    * Scroll chat to bottom
    */
   @action

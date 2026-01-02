@@ -14,6 +14,7 @@ export const SYSTEM_TYPES = [
   'platform_record',
   'blueprint_record',
   'ai_chat',
+  'frontend_plan',
 ];
 
 /**

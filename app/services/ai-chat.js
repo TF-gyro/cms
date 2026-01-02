@@ -13,6 +13,8 @@ export default class AiChatService extends Service {
   @tracked allChats = [];
   @tracked isLoading = false;
   @tracked pendingTypesJson = null;
+  @tracked currentMode = 'types'; // 'types' or 'frontend'
+  @tracked pendingFrontendStructure = null;
 
   /**
    * Load all ai_chat records from the store
@@ -50,6 +52,7 @@ export default class AiChatService extends Service {
           title: 'New Chat',
           messages: [],
           content_privacy: 'private',
+          frontend_structure: null,
         },
       });
 
@@ -73,6 +76,14 @@ export default class AiChatService extends Service {
   }
 
   /**
+   * Set the current mode (types or frontend)
+   */
+  @action
+  setMode(mode) {
+    this.currentMode = mode;
+  }
+
+  /**
    * Get current blueprint filtered to exclude system types
    */
   getCurrentBlueprint() {
@@ -80,6 +91,13 @@ export default class AiChatService extends Service {
       return {};
     }
     return filterSystemTypes(this.types.json.modules);
+  }
+
+  /**
+   * Get current frontend structure from current chat
+   */
+  getCurrentFrontendStructure() {
+    return this.currentChat?.modules?.frontend_structure || null;
   }
 
   /**
@@ -128,8 +146,9 @@ export default class AiChatService extends Service {
         };
       }
 
-      // Get current blueprint
+      // Get current blueprint and frontend structure
       const currentBlueprint = this.getCurrentBlueprint();
+      const currentFrontendStructure = this.getCurrentFrontendStructure();
 
       // Call AI API
       const response = await fetch('http://localhost:8000/api/v1/chat-types', {
@@ -140,6 +159,8 @@ export default class AiChatService extends Service {
         body: JSON.stringify({
           messages: updatedMessages,
           types_json: currentBlueprint,
+          frontend_structure: currentFrontendStructure,
+          mode: this.currentMode,
         }),
       });
 
@@ -170,6 +191,23 @@ export default class AiChatService extends Service {
         console.log('pendingTypesJson set to:', this.pendingTypesJson);
       } else {
         console.log('No types_json in API response');
+      }
+
+      // If frontend_structure is returned, store it and save to chat
+      if (data.frontend_structure) {
+        console.log('frontend_structure received from API:', data.frontend_structure);
+        this.pendingFrontendStructure = data.frontend_structure;
+        
+        // Save to chat modules
+        this.currentChat.modules = {
+          ...this.currentChat.modules,
+          frontend_structure: data.frontend_structure,
+        };
+        
+        // Save the chat again with frontend_structure
+        await this.currentChat.save();
+      } else {
+        console.log('No frontend_structure in API response');
       }
 
       this.isLoading = false;

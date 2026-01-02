@@ -53,6 +53,25 @@
                 {{/if}}
             </ul>
         </div>
+
+        {{! Mode Toggle }}
+        <div class="btn-group btn-group-sm ms-2" role="group" aria-label="Chat mode">
+            <button
+                type="button"
+                class="btn {{if (eq this.aiChat.currentMode 'types') 'btn-light' 'btn-outline-light'}}"
+                {{on "click" (fn this.setMode "types")}}
+            >
+                <i class="fa-solid fa-database me-1"></i>Types
+            </button>
+            <button
+                type="button"
+                class="btn {{if (eq this.aiChat.currentMode 'frontend') 'btn-light' 'btn-outline-light'}}"
+                {{on "click" (fn this.setMode "frontend")}}
+            >
+                <i class="fa-solid fa-laptop-code me-1"></i>Frontend
+            </button>
+        </div>
+
         <button
             type="button"
             class="btn-close btn-close-white ms-2"

@@ -17,8 +17,9 @@ module('Unit | Utils | system-types', function () {
       'platform_record',
       'blueprint_record',
       'ai_chat',
+      'frontend_plan',
     ]);
-    assert.strictEqual(SYSTEM_TYPES.length, 7);
+    assert.strictEqual(SYSTEM_TYPES.length, 8);
   });
 
   test('isSystemType returns true for all system types', function (assert) {
